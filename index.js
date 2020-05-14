@@ -9,14 +9,14 @@ let sketch = function (p) {
   let pds;
   let points;
 
-  const darkness = 3;
+  const darkness = 8;
 
-  const scale = 200;
+  const scale = 500;
   const persistence = 0.35;
-  const sigmoid_intensity = 0;
+  const sigmoid_intensity = 4;
 
-  const grid_dim_x = 900;
-  const grid_dim_y = 900;
+  const grid_dim_x = 1000;
+  const grid_dim_y = 1000;
   const padding = 40;
   const canvas_dim_x = grid_dim_x + 2 * padding;
   const canvas_dim_y = grid_dim_y + 2 * padding;
@@ -27,9 +27,7 @@ let sketch = function (p) {
   p.setup = function () {
     p.createCanvas(canvas_dim_x, canvas_dim_y);
     p.pixelDensity(4);
-    p.noStroke();
     p.noLoop();
-    p.fill(0);
 
     THE_SEED = p.floor(p.random(9999999));
     p.randomSeed(THE_SEED);
@@ -38,7 +36,6 @@ let sketch = function (p) {
   p.draw = function () {
     p.background('#fd0');
     reset();
-    //display();
     displaySample();
   };
 
@@ -47,44 +44,20 @@ let sketch = function (p) {
   };
 
   function displaySample() {
-    //p.fill('#f00');
     p.stroke(0);
-    p.strokeWeight(1.5);
     p.translate(padding, padding);
     for (const pnt of points) {
+      p.strokeWeight(0.1 + Math.random() * 2.5);
       p.point(pnt[0], pnt[1]);
     }
-  }
-
-  function display() {
-    p.push();
-    for (let y = 1; y < ny - 1; y++) {
-      p.push();
-      for (let x = 1; x < nx - 1; x++) {
-        display_cell(x, y);
-        p.translate(cell_dim, 0);
-      }
-      p.pop();
-      p.translate(0, cell_dim);
-    }
-    p.pop();
-  }
-
-  function display_cell(x, y) {
-    p.fill(slope_grid[y][x] * 255);
-    p.rect(0, 0, cell_dim, cell_dim);
   }
 
   function reset() {
     noise_grid = build_noise_grid(0.5, 0);
     slope_grid = build_slope_grid();
 
-    console.log(slope_grid);
-
-    //console.log(slope_grid);
     pds = createPoisson(slope_grid);
     points = pds.fill();
-    //console.log(points);
 
     p.randomSeed(THE_SEED);
   }
@@ -117,7 +90,6 @@ let sketch = function (p) {
       minDistance: 1,
       maxDistance: 15,
       distanceFunction: function (p) {
-        //console.log(p);
         return Math.pow(slope[Math.floor(p[1] / cell_dim)][Math.floor(p[0] / cell_dim)], 8); // value between 0 and 1
       },
     });
@@ -137,7 +109,7 @@ let sketch = function (p) {
     const slope = get_slope(x, y);
     const mag = Math.sqrt(Math.pow(slope[0], 2) + Math.pow(slope[1], 2));
     const dir = get_dir(...slope);
-    const dirdiff = Math.abs(Math.PI - dir);
+    const dirdiff = Math.abs(2 + dir);
     return p.constrain(1 - mag * dirdiff * darkness, 0, 1);
   }
 
